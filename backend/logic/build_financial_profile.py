@@ -6,6 +6,12 @@ GOAL_DEFAULTS = {
     "Retirement": {"horizon": 30, "risk": "aggressive", "account": "TFSA / RRSP"},
 }
 
+ALLOCATION_MAP = {
+    "Conservative": {"stocks": 30, "bonds": 50, "cash": 20},
+    "Moderate": {"stocks": 60, "bonds": 30, "cash": 10},
+    "Aggressive": {"stocks": 80, "bonds": 15, "cash": 5},
+}
+
 def get_goal_defaults(goal: str):
     default_goal = {"horizon": 5, "risk": "moderate", "account": "TFSA"}
     return GOAL_DEFAULTS.get(goal, default_goal)

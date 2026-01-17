@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from backend.logic.build_financial_profile import get_goal_defaults, categorize_horizon, determine_risk
+from backend.logic.build_financial_profile import get_goal_defaults, categorize_horizon, determine_risk, ALLOCATION_MAP
 from backend.gemini import generate_educational_text
-from backend.models import UserFinancialProfile, GoalInput, HorizonInput
+from backend.models import UserFinancialProfile, GoalInput, HorizonInput, AllocationInput
 
 app = FastAPI()
 
@@ -50,5 +50,30 @@ def submit_horizon(data: HorizonInput):
     
     return {
         "profile": profile.model_dump(exclude_none=True),
+        "educational_text": educational_text
+    }
+
+
+@app.post("/submit_risk")
+def confirm_risk_and_suggest_allocation(data: AllocationInput):
+    profile = data.profile
+
+    if data.risk_override:
+        profile.risk_profile = data.risk_override
+
+    default_risk_profile = ALLOCATION_MAP['Moderate']
+    allocation = ALLOCATION_MAP.get(profile.risk_profile, default_risk_profile)
+
+    # Generate educational text with Gemini
+    gemini_prompt = (
+        f"The user has a risk profile of '{profile.risk_profile}' and a goal of '{profile.goal}'. "
+        f"Provide a short paragraph explaining why the following asset allocation is suggested for them: {allocation}. "
+    )
+
+    educational_text = generate_educational_text(prompt=gemini_prompt)
+
+    return {
+        "profile": profile.model_dump(exclude_none=True),
+        "suggested_allocation": allocation,
         "educational_text": educational_text
     }

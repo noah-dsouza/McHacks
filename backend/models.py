@@ -14,3 +14,7 @@ class GoalInput(BaseModel):
 class HorizonInput(BaseModel):
     horizon: int  
     profile: UserFinancialProfile  
+
+class AllocationInput(BaseModel):
+    profile: UserFinancialProfile  
+    risk_override: Optional[str] = None 
